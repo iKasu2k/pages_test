@@ -24,31 +24,38 @@
         }
 
         function onPlayerReady(event) {
-            CefSharp.PostMessage(event);
+            //CefSharp.PostMessage(event);
         }
         
         function onPlayerStateChange(event) {
             startAdBlock();
-            CefSharp.PostMessage(event);
-            CefSharp.PostMessage(player);
+            //CefSharp.PostMessage(event);
+            //CefSharp.PostMessage(player);
         }
 
         function startAdBlock() {
             if (adBlockCallbackId) clearInterval(adBlockCallbackId);
         
             const playerIFrame = document.querySelector("iframe");
-        
+            console.log("Checking IFrame");
+            console.log(playerIFrame);
+            
             if (playerIFrame) {
                 adBlockCallbackId = setInterval(() => {
                     const frameDoc = playerIFrame.contentDocument;
-        
+
+                    console.log("Checking frameDoc");
+                    console.log(frameDoc);
+                    
                     if (!frameDoc) {
                         return;
                     }
         
         
                     const adsContainer = frameDoc.querySelector('.video-ads');
-        
+                    console.log("Checking adsContainer");
+                    console.log(adsContainer);
+                    
                     if (!adsContainer || adsContainer.childElementCount == 0) {
                         return;
                     }
