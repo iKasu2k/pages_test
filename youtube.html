@@ -9,6 +9,8 @@
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
         var player;
+        var adBlockCallbackId;
+            
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('player', {
             height: '360',
@@ -26,8 +28,59 @@
         }
         
         function onPlayerStateChange(event) {
+            startAdBlock();
             CefSharp.PostMessage(event);
             CefSharp.PostMessage(player);
+        }
+
+        function startAdBlock() {
+            if (adBlockCallbackId) clearInterval(adBlockCallbackId);
+        
+            const playerIFrame = document.querySelector("iframe");
+        
+            if (playerIFrame) {
+                adBlockCallbackId = setInterval(() => {
+                    const frameDoc = playerIFrame.contentDocument;
+        
+                    if (!frameDoc) {
+                        return;
+                    }
+        
+        
+                    const adsContainer = frameDoc.querySelector('.video-ads');
+        
+                    if (!adsContainer || adsContainer.childElementCount == 0) {
+                        return;
+                    }
+        
+                    const adsVideo = adsContainer.querySelector("video");
+        
+                    if (adsVideo) {
+                        adsVideo.muted = true;
+                        adsVideo.style.display = 'none';
+                        adsVideo.currentTime = adsVideo.duration - 0.15;
+                        adsVideo.muted = false;
+                        adsVideo.style.display = '';
+                    } else {
+        
+                        const isAdShowing = frameDoc.getElementsByClassName('ad-showing').length != 0;
+        
+                        if (!isAdShowing) {
+                            return;
+                        }
+        
+                        const mainVideo = frameDoc.querySelector('.html5-main-video');
+        
+                        if (!mainVideo) {
+                            return;
+                        }
+                        mainVideo.muted = true;
+                        mainVideo.currentTime = mainVideo.duration - 0.15;
+                        mainVideo.muted = false;
+                    }
+        
+                }, 100);
+            }
         }
         </script>
     </body>
